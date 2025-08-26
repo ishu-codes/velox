@@ -8,7 +8,6 @@ import ChatApp from "./components/ChatApp";
 const queryClient = new QueryClient();
 
 export default function App() {
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -16,7 +15,6 @@ export default function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<ChatApp />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

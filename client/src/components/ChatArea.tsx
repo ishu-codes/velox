@@ -6,9 +6,12 @@ import UserAvatar from "./UserAvatar";
 import ChatMessage from "./ChatMessage";
 import { useStompClient, useSubscription } from "react-stomp-hooks";
 import { v4 as uuid } from "uuid";
+import { useUsernameStore } from "@/store/username";
+import { useShallow } from "zustand/shallow";
+import { useCurrentPageStore } from "@/store/currentPage";
 
 interface ChatAreaProps {
-  chatId: string;
+  // chatId: string;
   onShowSidebar?: () => void;
   showBackButton?: boolean;
 }
@@ -46,28 +49,31 @@ const intialMessages = [
   },
   {
     id: "3",
-    sender: "You",
+    sender: "Masi",
     content:
       "We need to control the midfield and exploit their defensive weaknesses. Bruno and Paul, I'm counting on your creativity. Marcus and Jadon, stretch their defense wide. Use your pace and take on their full-backs.",
     timestamp: "Sun Aug 25 2025 20:34:58 GMT+0530 (India Standard Time)",
     // isOwn: true,
     // hasAttachment: true,
-    sent: true,
+    // sent: true,
   },
 ];
 
-const username = "You";
-
 export default function ChatArea({
   //   chatId,
-  onShowSidebar,
+  // onShowSidebar,
   showBackButton,
 }: ChatAreaProps) {
   const [messages, setMessages] = useState<Message[]>(intialMessages);
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const username = useUsernameStore(useShallow((state) => state.username));
 
   const stompClient = useStompClient();
+
+  const [currentPageDesc, setCurrentPage] = useCurrentPageStore(
+    useShallow((s) => [s.desc, s.setCurrentPage])
+  );
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -83,6 +89,8 @@ export default function ChatArea({
           sent: true,
         },
       ]);
+    } else {
+      setMessages([...messages, messageObj]);
     }
   });
 
@@ -118,6 +126,7 @@ export default function ChatArea({
 
   useEffect(() => {
     scrollToBottom();
+    console.log("userName: ", username);
   }, [messages]);
 
   return (
@@ -127,7 +136,11 @@ export default function ChatArea({
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             {showBackButton && (
-              <Button variant="ghost" size="sm" onClick={onShowSidebar}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setCurrentPage("home")}
+              >
                 <ArrowLeft className="h-4 w-4" />
               </Button>
             )}
@@ -176,7 +189,7 @@ export default function ChatArea({
       </div>
 
       {/* Message input */}
-      <div className="p-4 border-t border-border bg-background">
+      <div className="p-4 border-t border-border bg-background z-20">
         <div className="flex items-end space-x-2">
           <div className="flex-1">
             <Input

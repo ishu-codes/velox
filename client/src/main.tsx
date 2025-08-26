@@ -10,7 +10,7 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <StompSessionProvider
-        url={"ws://localhost:8080/ws"}
+        url={import.meta.env.VITE_URL ?? "ws://localhost:8080/ws"}
         onConnect={(frame) => {
           console.log("STOMP Connected!", frame);
         }}

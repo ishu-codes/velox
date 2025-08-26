@@ -9,11 +9,7 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-// import {
-//   Popover,
-//   PopoverContent,
-//   PopoverTrigger,
-// } from "@/components/ui/popover";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,14 +19,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-// import UserAvatar from "./UserAvatar";
 import ContactItem from "./ContactItem";
 import { useTheme } from "./theme-provider";
+import { useCurrentPageStore } from "@/store/currentPage";
+import { useShallow } from "zustand/shallow";
 
 interface ChatSidebarProps {
-  selectedChat: string;
-  onSelectChat: (chatId: string) => void;
-  onToggleSidebar?: () => void;
   isMobile?: boolean;
 }
 
@@ -87,18 +81,16 @@ const chatData = [
   },
 ];
 
-export default function ChatSidebar({
-  selectedChat,
-  onSelectChat,
-  onToggleSidebar,
-  isMobile,
-}: ChatSidebarProps) {
+export default function ChatSidebar({ isMobile }: ChatSidebarProps) {
   const { theme, setTheme } = useTheme();
+  const [currentPageDesc, setCurrentPage] = useCurrentPageStore(
+    useShallow((s) => [s.desc, s.setCurrentPage])
+  );
 
   return (
     <div
-      className={`flex flex-col h-full w-80 bg-chat-sidebar border-r border-border ${
-        isMobile ? "h-full" : ""
+      className={`w-full md:w-80 h-screen flex flex-col bg-background border-r border-border ${
+        isMobile ? "w-full" : ""
       }`}
     >
       {/* Search Header */}
@@ -174,8 +166,8 @@ export default function ChatSidebar({
             <ContactItem
               key={chat.id}
               {...chat}
-              isSelected={selectedChat === chat.id}
-              onClick={() => onSelectChat(chat.id)}
+              isSelected={currentPageDesc === chat.id}
+              onClick={() => setCurrentPage("chat", chat.id)}
             />
           ))}
       </div>
@@ -190,8 +182,8 @@ export default function ChatSidebar({
               <ContactItem
                 key={chat.id}
                 {...chat}
-                isSelected={selectedChat === chat.id}
-                onClick={() => onSelectChat(chat.id)}
+                isSelected={currentPageDesc === chat.id}
+                onClick={() => setCurrentPage("chat", chat.id)}
               />
             ))}
         </div>
