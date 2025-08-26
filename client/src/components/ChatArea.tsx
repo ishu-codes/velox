@@ -129,6 +129,21 @@ export default function ChatArea({
     console.log("userName: ", username);
   }, [messages]);
 
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      event.preventDefault();
+      setCurrentPage("home");
+      window.history.pushState(null, "", window.location.pathname);
+    };
+
+    window.history.pushState(null, "", window.location.pathname);
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, []);
+
   return (
     <div className="h-full flex flex-col bg-background">
       {/* Chat Header */}
@@ -145,12 +160,12 @@ export default function ChatArea({
               </Button>
             )}
             <UserAvatar
-              name="United Family"
+              name={currentPageDesc}
               src="/lovable-uploads/ff800aa0-969a-49b0-b79c-2aa6f203cd34.png"
             />
             <div>
               <h2 className="font-semibold text-foreground">
-                United Family 🛡️
+                {currentPageDesc}
               </h2>
               <p className="text-sm text-chat-typing">Rashford is typing...</p>
             </div>
