@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import UserAvatar from "./UserAvatar";
 import ChatMessage from "./ChatMessage";
-import { timeStamp } from "console";
+import { useStompClient, useSubscription } from "react-stomp-hooks";
 
 interface ChatAreaProps {
   chatId: string;
@@ -13,13 +13,13 @@ interface ChatAreaProps {
 }
 
 type Message = {
-  id: string;
+  // id: string;
   sender: string;
   content: string;
   timestamp: string;
   avatar?: string;
-  isOwn: boolean;
-}
+  // isOwn?: boolean;
+};
 
 const intialMessages = [
   {
@@ -29,7 +29,7 @@ const intialMessages = [
       "Hey lads, tough game yesterday. Let's talk about what went wrong and how we can improve 😊.",
     timestamp: "08:34 AM",
     avatar: "/lovable-uploads/ff800aa0-969a-49b0-b79c-2aa6f203cd34.png",
-    isOwn: false,
+    // isOwn: false,
   },
   {
     id: "2",
@@ -38,7 +38,7 @@ const intialMessages = [
       "Agreed, Harry 👍. We had some good moments, but we need to be more clinical in front of the goal 😊.",
     timestamp: "08:34 AM",
     avatar: "/lovable-uploads/ff800aa0-969a-49b0-b79c-2aa6f203cd34.png",
-    isOwn: false,
+    // isOwn: false,
   },
   {
     id: "3",
@@ -46,50 +46,82 @@ const intialMessages = [
     content:
       "We need to control the midfield and exploit their defensive weaknesses. Bruno and Paul, I'm counting on your creativity. Marcus and Jadon, stretch their defense wide. Use your pace and take on their full-backs.",
     timestamp: "08:34 AM",
-    isOwn: true,
-    hasAttachment: true,
+    // isOwn: true,
+    // hasAttachment: true,
   },
 ];
 
+const username = "you";
+
 export default function ChatArea({
-//   chatId,
+  //   chatId,
   onShowSidebar,
   showBackButton,
 }: ChatAreaProps) {
-//   const isUnitedFamily = chatId === "united-family";
-const [messages, setMessages] = useState<Message[]>(intialMessages);
-const [newMessage, setNewMessage] = useState('');
-const messagesEndRef = useRef<HTMLDivElement>(null);
+  //   const isUnitedFamily = chatId === "united-family";
+  const [messages, setMessages] = useState<Message[]>(intialMessages);
+  const [newMessage, setNewMessage] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-const scrollToBottom = () => {
-  messagesEndRef.current?.scrollIntoView({behavior: 'smooth'});
-}
+  const stompClient = useStompClient();
 
-const handleSendMessage = () => {
-  if (newMessage.trim()) {
-    const message = {
-      id: Date.now().toString(),
-      sender: 'You',
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const getTimestamp = (date?: Date) => {
+    const newDate = new Date(date ?? new Date());
+    return newDate.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  useSubscription("/topic/public", (message) => {
+    const messageObj: Message = JSON.parse(message.body);
+    setMessages([...messages, messageObj]);
+  });
+
+  const handleSendMessage = () => {
+    if (!newMessage.trim()) return;
+    const chatMessage = {
+      sender: username,
       content: newMessage,
-      timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}),
-      isOwn: true,
-      avatar: ''
+      type: "CHAT",
+      timestamp: getTimestamp(),
     };
-    setMessages([...messages, message]);
-    setNewMessage('');
-  }
-}
 
-const handleKeyPress = (e: React.KeyboardEvent) => {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    handleSendMessage();
-  }
-}
+    if (stompClient) {
+      stompClient.publish({
+        destination: "/app/chat.sendMessage",
+        body: JSON.stringify(chatMessage),
+        headers: { username: "you" },
+      });
+    } else {
+      console.log("StompClient is Invalid!", stompClient);
+    }
+    setNewMessage("");
+    setMessages([...messages, chatMessage]);
+  };
 
-useEffect(() => {
-scrollToBottom();
-}, [messages]);
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    console.log("StompClient state:", {
+      client: stompClient,
+      connected: stompClient?.connected,
+      active: stompClient?.active,
+    });
+  }, [stompClient]);
 
   return (
     <div className="h-full flex flex-col bg-background">
@@ -136,8 +168,12 @@ scrollToBottom();
           </span>
         </div>
 
-        {messages.map((message) => (
-          <ChatMessage key={message.id} {...message} />
+        {messages.map((message, idx) => (
+          <ChatMessage
+            key={idx}
+            {...message}
+            isOwn={username === message.sender}
+          />
         ))}
         <div ref={messagesEndRef} />
       </div>
@@ -146,10 +182,19 @@ scrollToBottom();
       <div className="p-4 border-t border-border bg-background">
         <div className="flex items-end space-x-2">
           <div className="flex-1">
-            <Input placeholder="Type a message..." value={newMessage} onChange={(e) => setNewMessage(e.target.value)}
-            onKeyDown={handleKeyPress} className="resize-none" />
+            <Input
+              placeholder="Type a message..."
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              onKeyDown={handleKeyPress}
+              className="resize-none"
+            />
           </div>
-          <Button onClick={handleSendMessage} disabled={!newMessage.trim()} size="sm">
+          <Button
+            onClick={handleSendMessage}
+            disabled={!newMessage.trim()}
+            size="sm"
+          >
             <Send className="h-4 w-4"></Send>
           </Button>
         </div>

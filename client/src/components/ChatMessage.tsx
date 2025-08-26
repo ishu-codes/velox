@@ -3,7 +3,7 @@ import UserAvatar from "./UserAvatar";
 // import tacticalBoard from "@/assets/tactical-board.png";
 
 interface ChatMessageProps {
-  id: string;
+  // id: string;
   sender: string;
   content: string;
   timestamp: string;
