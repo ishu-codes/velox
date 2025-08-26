@@ -20,6 +20,7 @@ type Message = {
   id: string;
   sender: string;
   content: string;
+  group?: string;
   timestamp: string;
   avatar?: string;
   // isOwn?: boolean;
@@ -34,6 +35,7 @@ const intialMessages = [
     sender: "Harry Maguire",
     content:
       "Hey lads, tough game yesterday. Let's talk about what went wrong and how we can improve 😊.",
+    group: "united-family",
     timestamp: "Sun Aug 25 2025 20:34:13 GMT+0530 (India Standard Time)",
     avatar: "/lovable-uploads/ff800aa0-969a-49b0-b79c-2aa6f203cd34.png",
     // isOwn: false,
@@ -43,6 +45,7 @@ const intialMessages = [
     sender: "Bruno Fernandes",
     content:
       "Agreed, Harry 👍. We had some good moments, but we need to be more clinical in front of the goal 😊.",
+    group: "united-family",
     timestamp: "Sun Aug 25 2025 20:34:36 GMT+0530 (India Standard Time)",
     avatar: "/lovable-uploads/ff800aa0-969a-49b0-b79c-2aa6f203cd34.png",
     // isOwn: false,
@@ -52,6 +55,7 @@ const intialMessages = [
     sender: "Masi",
     content:
       "We need to control the midfield and exploit their defensive weaknesses. Bruno and Paul, I'm counting on your creativity. Marcus and Jadon, stretch their defense wide. Use your pace and take on their full-backs.",
+    group: "united-family",
     timestamp: "Sun Aug 25 2025 20:34:58 GMT+0530 (India Standard Time)",
     // isOwn: true,
     // hasAttachment: true,
@@ -79,7 +83,7 @@ export default function ChatArea({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  useSubscription("/topic/public", (message) => {
+  useSubscription(`/topic/${currentPageDesc}/public`, (message) => {
     const messageObj: Message = JSON.parse(message.body);
     if (messageObj.sender === username) {
       setMessages([
@@ -106,9 +110,15 @@ export default function ChatArea({
 
     if (stompClient) {
       stompClient.publish({
-        destination: "/app/chat.sendMessage",
-        body: JSON.stringify(chatMessage),
-        headers: { username: "You" },
+        destination: `/app/chat/${currentPageDesc}/sendMessage`,
+        body: JSON.stringify({
+          ...chatMessage,
+          group: { id: currentPageDesc },
+          sender: {
+            id: username,
+          },
+        }),
+        headers: { username },
       });
     } else {
       console.log("StompClient is Invalid!", stompClient);
@@ -126,7 +136,6 @@ export default function ChatArea({
 
   useEffect(() => {
     scrollToBottom();
-    console.log("userName: ", username);
   }, [messages]);
 
   useEffect(() => {
