@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import UserAvatar from "./UserAvatar";
 import ChatMessage from "./ChatMessage";
 import { useStompClient, useSubscription } from "react-stomp-hooks";
+import { v4 as uuid } from "uuid";
 
 interface ChatAreaProps {
   chatId: string;
@@ -13,12 +14,15 @@ interface ChatAreaProps {
 }
 
 type Message = {
-  // id: string;
+  id: string;
   sender: string;
   content: string;
   timestamp: string;
   avatar?: string;
   // isOwn?: boolean;
+  sent?: boolean;
+  received?: boolean;
+  seen?: boolean;
 };
 
 const intialMessages = [
@@ -27,7 +31,7 @@ const intialMessages = [
     sender: "Harry Maguire",
     content:
       "Hey lads, tough game yesterday. Let's talk about what went wrong and how we can improve 😊.",
-    timestamp: "08:34 AM",
+    timestamp: "Sun Aug 25 2025 20:34:13 GMT+0530 (India Standard Time)",
     avatar: "/lovable-uploads/ff800aa0-969a-49b0-b79c-2aa6f203cd34.png",
     // isOwn: false,
   },
@@ -36,7 +40,7 @@ const intialMessages = [
     sender: "Bruno Fernandes",
     content:
       "Agreed, Harry 👍. We had some good moments, but we need to be more clinical in front of the goal 😊.",
-    timestamp: "08:34 AM",
+    timestamp: "Sun Aug 25 2025 20:34:36 GMT+0530 (India Standard Time)",
     avatar: "/lovable-uploads/ff800aa0-969a-49b0-b79c-2aa6f203cd34.png",
     // isOwn: false,
   },
@@ -45,20 +49,20 @@ const intialMessages = [
     sender: "You",
     content:
       "We need to control the midfield and exploit their defensive weaknesses. Bruno and Paul, I'm counting on your creativity. Marcus and Jadon, stretch their defense wide. Use your pace and take on their full-backs.",
-    timestamp: "08:34 AM",
+    timestamp: "Sun Aug 25 2025 20:34:58 GMT+0530 (India Standard Time)",
     // isOwn: true,
     // hasAttachment: true,
+    sent: true,
   },
 ];
 
-const username = "you";
+const username = "You";
 
 export default function ChatArea({
   //   chatId,
   onShowSidebar,
   showBackButton,
 }: ChatAreaProps) {
-  //   const isUnitedFamily = chatId === "united-family";
   const [messages, setMessages] = useState<Message[]>(intialMessages);
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -69,33 +73,34 @@ export default function ChatArea({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const getTimestamp = (date?: Date) => {
-    const newDate = new Date(date ?? new Date());
-    return newDate.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   useSubscription("/topic/public", (message) => {
     const messageObj: Message = JSON.parse(message.body);
-    setMessages([...messages, messageObj]);
+    if (messageObj.sender === username) {
+      setMessages([
+        ...messages.filter((m) => m.id !== messageObj.id),
+        {
+          ...messageObj,
+          sent: true,
+        },
+      ]);
+    }
   });
 
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
     const chatMessage = {
+      id: uuid(),
       sender: username,
       content: newMessage,
       type: "CHAT",
-      timestamp: getTimestamp(),
+      timestamp: new Date().toString(),
     };
 
     if (stompClient) {
       stompClient.publish({
         destination: "/app/chat.sendMessage",
         body: JSON.stringify(chatMessage),
-        headers: { username: "you" },
+        headers: { username: "You" },
       });
     } else {
       console.log("StompClient is Invalid!", stompClient);
@@ -114,14 +119,6 @@ export default function ChatArea({
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  useEffect(() => {
-    console.log("StompClient state:", {
-      client: stompClient,
-      connected: stompClient?.connected,
-      active: stompClient?.active,
-    });
-  }, [stompClient]);
 
   return (
     <div className="h-full flex flex-col bg-background">

@@ -96,15 +96,22 @@ export default function ChatSidebar({
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className={`flex flex-col h-full w-80 bg-chat-sidebar border-r border-border ${isMobile ? "h-full" : ""}`}>
+    <div
+      className={`flex flex-col h-full w-80 bg-chat-sidebar border-r border-border ${
+        isMobile ? "h-full" : ""
+      }`}
+    >
       {/* Search Header */}
       <div className="p-4">
         <div className="flex items-center space-x-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input className="pl-10 bg-background border-input" placeholder="Search conversations..." />
+            <Input
+              className="pl-10 bg-background border-input"
+              placeholder="Search conversations..."
+            />
           </div>
-          
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm">
@@ -123,7 +130,9 @@ export default function ChatSidebar({
                   <Settings className="h-4 w-4 mr-2" />
                   <span>Settings</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
+                <DropdownMenuItem
+                  onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+                >
                   <Palette className="h-4 w-4 mr-2" />
                   <span>Change Theme</span>
                 </DropdownMenuItem>
