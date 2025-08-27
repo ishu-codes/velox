@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import UserAvatar from "./UserAvatar";
 import { Badge } from "@/components/ui/badge";
+import { Pin } from "lucide-react";
 
 interface ContactItemProps {
   id: string;
@@ -28,6 +29,7 @@ export default function ContactItem({
   isOnline,
   isRead = true,
   unreadCount,
+  isPinned = false,
   onClick,
 }: ContactItemProps) {
   return (
@@ -47,7 +49,8 @@ export default function ContactItem({
           >
             {name}
           </h3>
-          <span className="flex-shrink-0 text-xs text-muted-foreground">
+          <span className="flex-shrink-0 flex gap-1 text-xs text-muted-foreground">
+            {isPinned && <Pin className="h-4 w-4" />}
             {timestamp}
           </span>
         </div>

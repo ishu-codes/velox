@@ -37,8 +37,12 @@ public class ChatController {
         log.info("\n\nMessage to group {}: {}\n\n", groupId, chatMessage.getContent());
 
         // fetch group from DB
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new RuntimeException("Group not found: " + groupId));
+        Group group = groupRepository.findById(groupId).orElseGet(() -> groupRepository.save(
+                Group.builder()
+                        .id(groupId)
+                        .name(getName(groupId))
+                        .build()
+        ));
         chatMessage.setGroup(group);
 
 

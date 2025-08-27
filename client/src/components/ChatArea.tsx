@@ -266,6 +266,7 @@ export default function ChatArea({
           <div className="flex-1">
             <Input
               placeholder="Type a message..."
+              autoFocus
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyDown={handleKeyPress}

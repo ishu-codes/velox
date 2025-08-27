@@ -1,6 +1,5 @@
 import {
   Search,
-  Pin,
   MoreVertical,
   User,
   Settings,
@@ -15,7 +14,6 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -111,8 +109,6 @@ export default function ChatSidebar({ isMobile }: ChatSidebarProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuLabel>Options</DropdownMenuLabel>
-              <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <DropdownMenuItem>
                   <User className="h-4 w-4 mr-2" />
@@ -154,28 +150,20 @@ export default function ChatSidebar({ isMobile }: ChatSidebarProps) {
         </div>
       </div>
 
-      {/* Pinned Messages */}
-      <div className="px-4 py-3">
-        <div className="flex items-center space-x-2 mb-3 text-sm text-muted-foreground">
-          <Pin className="h-4 w-4" />
-          <span>Pinned Message</span>
-        </div>
-        {chatData
-          .filter((chat) => chat.isPinned)
-          .map((chat) => (
-            <ContactItem
-              key={chat.id}
-              {...chat}
-              isSelected={currentPageDesc === chat.id}
-              onClick={() => setCurrentPage("chat", chat.id)}
-            />
-          ))}
-      </div>
-
       {/* Chat List */}
       <div className="flex-1 overflow-y-auto">
         <div className="px-4 py-2">
-          <div className="mb-3 text-sm text-muted-foreground">Messages</div>
+          {chatData
+            .filter((chat) => chat.isPinned)
+            .map((chat) => (
+              <ContactItem
+                key={chat.id}
+                {...chat}
+                isSelected={currentPageDesc === chat.id}
+                onClick={() => setCurrentPage("chat", chat.id)}
+              />
+            ))}
+
           {chatData
             .filter((chat) => !chat.isPinned)
             .map((chat) => (
