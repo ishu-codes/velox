@@ -1,20 +1,22 @@
 package ishu.velox.chat;
 
 import ishu.velox.model.ChatMessage;
+import ishu.velox.model.Group;
+import ishu.velox.model.User;
 
 public record ChatMessageDTO(
         String id,
         String content,
-        String sender,
-        String groupId,
+        User sender,
+        Group groupId,
         String timestamp
 ) {
     public static ChatMessageDTO fromEntity(ChatMessage message) {
         return new ChatMessageDTO(
                 message.getId(),
                 message.getContent(),
-                message.getSender().getId(),
-                message.getGroup().getId(),   // only id, not full object
+                message.getSender(),
+                message.getGroup(),   // only id, not full object
                 message.getTimestamp()
         );
     }

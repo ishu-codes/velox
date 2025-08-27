@@ -20,6 +20,7 @@ export default function UserAvatar({
   };
 
   const getInitials = (name: string) => {
+    if (name == undefined) return "";
     return name
       .split(" ")
       .map((word) => word[0])

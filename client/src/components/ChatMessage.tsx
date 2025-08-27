@@ -6,7 +6,10 @@ import { getFormattedTimestamp } from "@/lib/date";
 
 interface ChatMessageProps {
   // id: string;
-  sender: string;
+  sender: {
+    id: string;
+    name?: string;
+  };
   content: string;
   timestamp: string;
   avatar?: string;
@@ -35,7 +38,9 @@ export default function ChatMessage({
         isOwn && "flex-row-reverse space-x-reverse"
       )}
     >
-      {!isOwn && <UserAvatar name={sender} src={avatar} size="sm" />}
+      {!isOwn && (
+        <UserAvatar name={sender.name ?? sender.id} src={avatar} size="sm" />
+      )}
 
       <div
         className={cn(
@@ -44,7 +49,9 @@ export default function ChatMessage({
         )}
       >
         {!isOwn && (
-          <span className="text-sm font-medium text-foreground">{sender}</span>
+          <span className="text-sm font-medium text-foreground">
+            {sender.name ?? sender.id}
+          </span>
         )}
 
         <div

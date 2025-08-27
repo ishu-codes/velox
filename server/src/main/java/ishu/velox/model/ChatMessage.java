@@ -19,7 +19,7 @@ public class ChatMessage {
     private String id;
     private String content;
 
-    @ManyToOne
+    @ManyToOne(optional = false, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "sender", nullable = false)
     private User sender;
 

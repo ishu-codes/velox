@@ -15,6 +15,7 @@ import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.util.Collections;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -25,12 +26,18 @@ public class WebSocketEventListener {
     @Autowired
     UserRepository userRepository;
 
-    @EventListener void handleWebSocketConnectListener(SessionConnectedEvent event) {
+    @EventListener
+    void handleWebSocketConnectListener(SessionConnectedEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         String username = (String) headerAccessor.getSessionAttributes().get("username");
         String groupId = (String) headerAccessor.getSessionAttributes().get("groupId");
 
-        User user = (User) userRepository.findAllById(Collections.singleton(username));
+        User user = userRepository.findById(username).orElseGet(() -> userRepository.save(
+                User.builder()
+                        .id(username)
+                        .name(getName(username))
+                        .build()
+        ));
 
         if (username != null && groupId != null) {
             log.info("User connected: {}", username);
@@ -48,7 +55,12 @@ public class WebSocketEventListener {
         String username = (String) headerAccessor.getSessionAttributes().get("username");
         String groupId = (String) headerAccessor.getSessionAttributes().get("groupId");
 
-        User user = (User) userRepository.findAllById(Collections.singleton(username));
+        User user = userRepository.findById(username).orElseGet(() -> userRepository.save(
+                User.builder()
+                        .id(username)
+                        .name(getName(username))
+                        .build()
+        ));
 
         if (username != null && groupId != null) {
             log.info("User disconnected: {}", username);
@@ -58,5 +70,12 @@ public class WebSocketEventListener {
                     .build();
             messageTemplate.convertAndSend("/topic/" + groupId + "/public", chatMessage);
         }
+    }
+
+    private String getName(String username) {
+        String[] words = username.split("-");
+        String firstName = new String("" + words[0].charAt(0)).toUpperCase() + words[0].substring(1);
+        String lastName = new String("" + words[1].charAt(0)).toUpperCase() + words[1].substring(1);
+        return firstName + " " + lastName;
     }
 }

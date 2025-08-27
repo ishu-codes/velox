@@ -49,7 +49,7 @@ const animals = [
 function generateUsername() {
   const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
   const animal = animals[Math.floor(Math.random() * animals.length)];
-  return `${adj} ${animal}`;
+  return `${adj}-${animal}`.toLowerCase();
 }
 
 type UsernameStore = {

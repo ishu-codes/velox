@@ -42,7 +42,9 @@ export default function ContactItem({
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between mb-1">
-          <h3 className={cn("truncate font-medium", !isRead && "font-semibold")}>
+          <h3
+            className={cn("truncate font-medium", !isRead && "font-semibold")}
+          >
             {name}
           </h3>
           <span className="flex-shrink-0 text-xs text-muted-foreground">
@@ -51,18 +53,21 @@ export default function ContactItem({
         </div>
 
         <div className="flex items-center justify-between">
-          <p className={cn(
-            "truncate text-sm",
-            isTyping && "text-chat-typing",
-            !isRead && isTyping && "font-medium",
-            !isRead && !isTyping && "font-medium text-foreground",
-            isRead && "text-muted-foreground"
-          )}>
+          <p
+            className={cn(
+              "truncate text-sm",
+              isTyping && "text-chat-typing",
+              !isRead && isTyping && "font-medium",
+              !isRead && !isTyping && "font-medium text-foreground",
+              isRead && "text-muted-foreground"
+            )}
+          >
             {lastMessage}
           </p>
 
           {unreadCount && (
-            <Badge variant="destructive" 
+            <Badge
+              variant="destructive"
               className="flex items-center justify-center ml-2 h-5 w-5 p-0 rounded-full text-xs bg-chat-notification"
             >
               {unreadCount}
