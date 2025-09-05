@@ -6,9 +6,9 @@ import UserAvatar from "./UserAvatar";
 import ChatMessage from "./ChatMessage";
 import { useStompClient, useSubscription } from "react-stomp-hooks";
 import { v4 as uuid } from "uuid";
-import { useUsernameStore } from "@/store/username";
 import { useShallow } from "zustand/shallow";
 import { useCurrentPageStore } from "@/store/currentPage";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ChatAreaProps {
   // chatId: string;
@@ -92,7 +92,8 @@ export default function ChatArea({
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const username = useUsernameStore(useShallow((state) => state.username));
+  // const username = useUsernameStore(useShallow((state) => state.username));
+  const { username } = useAuth();
 
   const stompClient = useStompClient();
 
@@ -145,7 +146,6 @@ export default function ChatArea({
           },
           group: { id: currentPageDesc },
         }),
-        headers: { username },
       });
     } else {
       console.log("StompClient is Invalid!", stompClient);

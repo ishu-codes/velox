@@ -4,6 +4,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import NotFound from "@/components/NotFound";
 import ChatApp from "./components/ChatApp";
+import LogIn from "./components/auth/Login";
+import LandingPage from "./components/LandingPage";
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Logout from "./components/auth/Logout";
 
 const queryClient = new QueryClient();
 
@@ -13,10 +18,19 @@ export default function App() {
       <TooltipProvider>
         <Toaster />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<ChatApp />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<LogIn />} />
+
+              <Route element={<ProtectedRoute />}>
+                <Route path="/chat" element={<ChatApp />} />
+                <Route path="/logout" element={<Logout />} />
+              </Route>
+
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>

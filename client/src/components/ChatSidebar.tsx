@@ -21,6 +21,7 @@ import ContactItem from "./ContactItem";
 import { useTheme } from "./theme-provider";
 import { useCurrentPageStore } from "@/store/currentPage";
 import { useShallow } from "zustand/shallow";
+import { Link } from "react-router-dom";
 
 interface ChatSidebarProps {
   isMobile?: boolean;
@@ -126,10 +127,12 @@ export default function ChatSidebar({ isMobile }: ChatSidebarProps) {
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <LogOut className="h-4 w-4 mr-2" />
-                <span>Log out</span>
-              </DropdownMenuItem>
+              <Link to="/logout" className="">
+                <DropdownMenuItem>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </Link>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
